@@ -48,7 +48,7 @@ const calculateResult = (testId, inputs) => {
   const lowerLimit = avgStrength * 0.85;
   const upperLimit = avgStrength * 1.15;
 
-  // ✅ Status logic (based on avg)
+  //  Status logic (based on avg)
   let status = "PASS";
   let message = "The material meets the required structural standards.";
   let color = "text-green-600";

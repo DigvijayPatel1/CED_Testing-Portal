@@ -3,10 +3,23 @@ import Navbar from './components/Navbar.jsx';
 import HomePage from './pages/HomePage.jsx';
 import CompStrengthInput from './pages/inputpages/CompStrengthInput.jsx';
 import PaverBlockInput from './pages/inputpages/PaverBlockInput.jsx';
+import CementInput from './pages/inputpages/CementInput.jsx';
+import BrickInput from './pages/inputpages/BrickInput.jsx';
 import CompStrengthRes from './pages/resultpages/CompStrengthRes.jsx';
 import PaverBlockRes from './pages/resultpages/PaverBlockRes.jsx';
-import compStrengthCalc from './utils/calculations/compStrengthCalc.js';
+import CementResult from './pages/resultpages/CementResult.jsx';
+import BrickResult from  './pages/resultpages/BrickResult.jsx';
+import TileInput from './pages/inputpages/TileInput.jsx';
+import TileSubtestInput from './pages/inputpages/TileSubtestInput.jsx';
+import TileResult from './pages/resultpages/TileResult.jsx';
+import ConcreteMixInput from './pages/inputpages/ConcreteMixInput.jsx';
+import ConcreteMixResult from './pages/resultpages/ConcreteMixResult.jsx';
 import paverBlockCalc from './utils/calculations/paverBlockCalc.js';
+import cementCalc from './utils/calculations/cementCalc.js';
+import compStrengthCalc from './utils/calculations/compStrengthCalc.js';
+import brickCalc from './utils/calculations/brickCalc.js';
+import tileCalc from './utils/calculations/tileCalc.js';
+import concreteMixCalc from './utils/calculations/concreteMixCalc.js';
 import './index.css';
 
 const TEST_PAGE_MAP = {
@@ -20,6 +33,26 @@ const TEST_PAGE_MAP = {
     ResultComponent: PaverBlockRes,
     calculate: paverBlockCalc,
   },
+  cement_Test: {
+    InputComponent: CementInput,
+    ResultComponent: CementResult,
+    calculate: cementCalc,
+  },
+  compressiveStrengthof_Brick: {
+    InputComponent: BrickInput,
+    ResultComponent: BrickResult,
+    calculate: brickCalc,
+  },
+  tileTest: {
+    InputComponent: TileInput,
+    ResultComponent: TileResult,
+    calculate: tileCalc,
+  },
+  concreteMixTest: {
+    InputComponent: ConcreteMixInput,
+    ResultComponent: ConcreteMixResult,
+    calculate: concreteMixCalc,
+  }
 };
 
 function UnsupportedTestPage({ testId, onBack, stage }) {
@@ -64,18 +97,22 @@ function ResultRoute() {
   const { testId } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
-  const result = location.state?.result;
   const testConfig = TEST_PAGE_MAP[testId];
 
   if (!testConfig) {
     return <UnsupportedTestPage testId={testId} stage="result" onBack={() => navigate('/')} />;
   }
 
+  const { ResultComponent, calculate } = testConfig;
+  const storedResult = location.state?.result;
+  const result = storedResult?.formData
+    ? calculate(testId, storedResult.formData)
+    : storedResult;
+
   if (!result) {
     return <Navigate to={`/inputpage/${testId}`} replace />;
   }
 
-  const { ResultComponent } = testConfig;
   return <ResultComponent result={result} onRestart={() => navigate('/')} />;
 }
 
@@ -93,6 +130,9 @@ export default function App() {
           />
           <Route path="/inputpage/:testId" element={<TestRoute />} />
           <Route path="/resultpages/:testId" element={<ResultRoute />} />
+          <Route path="/tile-input" element={<TileInput />} />
+          <Route path="/tile-input/subtest/:subtestId" element={<TileSubtestInput />} />
+          <Route path="/tile-result" element={<TileResult />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>

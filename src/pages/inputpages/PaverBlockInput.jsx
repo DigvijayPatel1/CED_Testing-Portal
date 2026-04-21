@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { CheckCircle, Building, Beaker, Layers, Info, Plus, Trash2 } from "lucide-react";
 import STANDARDS from "../../data/standards.js";
+import InputSidebar from "../../components/InputSidebar.jsx";
 
 const PaverBlockInput = ({ testId, onSubmit }) => {
   const test = STANDARDS[testId];
@@ -107,8 +108,11 @@ const PaverBlockInput = ({ testId, onSubmit }) => {
     );
   }
 
+  const specimenFieldCount =
+    test.specimenInputs?.filter((input) => input.id !== "specimenId").length || 0;
+
   return (
-    <div className="max-w-5xl mx-auto p-4 md:p-8 space-y-6 bg-slate-50 min-h-screen">
+    <div className="max-w-6xl mx-auto p-4 md:p-8 space-y-6 bg-slate-50 min-h-screen">
       <div className="bg-white border-l-4 border-blue-600 p-6 rounded-r-xl shadow-sm mb-2">
         <h1 className="text-xl font-black text-slate-800 uppercase tracking-tight">
           {test.name}
@@ -118,6 +122,7 @@ const PaverBlockInput = ({ testId, onSubmit }) => {
         </p>
       </div>
 
+      <div className="grid gap-8 lg:grid-cols-[1.4fr_0.8fr]">
       <form onSubmit={handleSubmit} className="space-y-8">
         <section className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
           <div className="bg-slate-50 px-6 py-4 border-b border-slate-200 flex items-center gap-2">
@@ -336,6 +341,21 @@ const PaverBlockInput = ({ testId, onSubmit }) => {
           </button>
         </div>
       </form>
+
+      <InputSidebar
+        summary="Start with the shared paver block dimensions and curing details, then add as many specimens as you need and capture the observed weight, load, and fracture pattern for each block."
+        stats={[
+          { label: "General fields", value: test.commonInputs?.length || 0 },
+          { label: "Paver specimens", value: specimens.length },
+          { label: "Values per block", value: specimenFieldCount },
+        ]}
+        tips={[
+          "Enter the common dimensions carefully because the same values drive every specimen in the report.",
+          "Use Add Specimen only when you have another tested block to record, and remove unused rows to keep the sheet clean.",
+          "If fracture type is marked Other, type the custom description before moving to the next specimen.",
+        ]}
+      />
+      </div>
     </div>
   );
 };

@@ -3,7 +3,7 @@ import { CheckCircle, Building, Beaker, Layers, Info } from "lucide-react";
 import STANDARDS from "../../data/standards.js";
 import InputSidebar from "../../components/InputSidebar.jsx";
 
-const CompStrengthTestPage = ({ testId, onSubmit }) => {
+const CementTestPage = ({ testId, onSubmit }) => {
   const test = STANDARDS[testId];
 
   // ✅ COMMON DATA (same for all cubes)
@@ -11,31 +11,25 @@ const CompStrengthTestPage = ({ testId, onSubmit }) => {
     client: "",
     clientAddress: "",
     sampleIdentification: "",
-    dateCasting: "",
-    dateTesting: "",
-    curingCondition: "",
-    specimenSize: "150x150x150",
+    cementGrade: "",
+    cementBrand: "",
+    consistency: "",
+    initialST: "",
+    finalST: "",
+    specimenSize: "150X150X150",
   });
-
-  const [customCuringCondition, setCustomCuringCondition] = useState("");
 
   // ✅ MULTIPLE SPECIMENS (cubes)
   const [specimens, setSpecimens] = useState([
-    { specimenId: "", weight: "", load: "", fractureType: "" },
-    { specimenId: "", weight: "", load: "", fractureType: "" },
-    { specimenId: "", weight: "", load: "", fractureType: "" },
+    { specimenId: "", maxLoad3d: null, maxLoad7d: null, maxLoad28d: null},
+    { specimenId: "", maxLoad3d: null, maxLoad7d: null, maxLoad28d: null},
+    { specimenId: "", maxLoad3d: null, maxLoad7d: null, maxLoad28d: null},
   ]);
-
-  const [customFractureType, setCustomFractureType] = useState({});
 
   // ✅ Change Common Inputs
   const handleCommonChange = (id, value) => {
     setCommonData((prev) => ({ ...prev, [id]: value }));
 
-    // reset custom input if not Other
-    if (id === "curingCondition" && value !== "Other") {
-      setCustomCuringCondition("");
-    }
   };
 
   // ✅ Change Specimen Inputs
@@ -43,13 +37,6 @@ const CompStrengthTestPage = ({ testId, onSubmit }) => {
     setSpecimens((prev) =>
       prev.map((spec, i) => (i === index ? { ...spec, [id]: value } : spec))
     );
-    if (id === "fractureType" && value !== "Other") {
-      setCustomFractureType((prev) => {
-        const copy = { ...prev };
-        delete copy[index];
-        return copy;
-      });
-    }
   };
 
   // ✅ Submit Full Data
@@ -57,20 +44,8 @@ const CompStrengthTestPage = ({ testId, onSubmit }) => {
     e.preventDefault();
 
     const payload = {
-      commonData: {
-        ...commonData,
-        curingCondition:
-          commonData.curingCondition === "Other"
-            ? customCuringCondition
-            : commonData.curingCondition,
-      },
-      specimens: specimens.map((spec, index) => ({
-        ...spec,
-        fractureType:
-          spec.fractureType === "Other"
-            ? customFractureType[index]
-            : spec.fractureType,
-      })),
+      commonData,
+      specimens,
     };
 
     if (onSubmit) {
@@ -134,17 +109,6 @@ const CompStrengthTestPage = ({ testId, onSubmit }) => {
                         </option>
                       ))}
                     </select>
-
-                    {input.id === "curingCondition" && commonData.curingCondition === "Other" && (
-                      <input
-                        type="text"
-                        required
-                        placeholder="Specify condition..."
-                        value={customCuringCondition}
-                        className="w-full p-3 bg-white border-2 border-blue-100 rounded-xl focus:border-blue-500 outline-none text-sm transition-all animate-in fade-in slide-in-from-top-2"
-                        onChange={(e) => setCustomCuringCondition(e.target.value)}
-                      />
-                    )}
                   </div>
                 ) : (
                   <input
@@ -218,21 +182,7 @@ const CompStrengthTestPage = ({ testId, onSubmit }) => {
                               ))}
                             </select>
                             
-                            {input.id === "fractureType" && spec.fractureType === "Other" && (
-                              <input
-                                type="text"
-                                required
-                                placeholder="Specify type..."
-                                value={customFractureType[index] || ""}
-                                className="w-full p-3 bg-white border-2 border-blue-500/20 rounded-xl text-sm outline-none animate-in zoom-in-95"
-                                onChange={(e) =>
-                                  setCustomFractureType((prev) => ({
-                                    ...prev,
-                                    [index]: e.target.value,
-                                  }))
-                                }
-                              />
-                            )}
+                            
                           </div>
                         ) : (
                           <div className="relative">
@@ -240,10 +190,10 @@ const CompStrengthTestPage = ({ testId, onSubmit }) => {
                               required
                               type={input.type}
                               step="any"
-                              value={spec[input.id] || ""}
+                              value={spec[input.id] ?? ""}
                               placeholder={input.placeholder}
                               className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-mono focus:ring-2 focus:ring-blue-500 outline-none"
-                              onChange={(e) => handleSpecimenChange(index, input.id, e.target.value)}
+                              onChange={(e) => handleSpecimenChange(index, input.id, e.target.value === "" ? null : Number(e.target.value))}
                             />
                           </div>
                         )}
@@ -275,16 +225,16 @@ const CompStrengthTestPage = ({ testId, onSubmit }) => {
       </form>
 
       <InputSidebar
-        summary="Fill the common casting and curing details once, then capture each cube's weight, maximum load, and fracture appearance so the compressive strength report has the full specimen trail."
+        summary="Capture the cement identification details once, then enter the three specimen IDs and their 3-day, 7-day, and 28-day load readings to prepare the strength report in one pass."
         stats={[
           { label: "General fields", value: test.commonInputs?.length || 0 },
-          { label: "Cube specimens", value: specimens.length },
-          { label: "Values per cube", value: specimenFieldCount },
+          { label: "Cement specimens", value: specimens.length },
+          { label: "Load stages", value: specimenFieldCount },
         ]}
         tips={[
-          "If you choose Other for curing condition or fracture type, add the custom note immediately so it is not missed later.",
-          "Record specimen IDs before entering weights and loads to avoid shifting readings between cube rows.",
-          "Keep load entries in the same unit shown on the page because the result calculation depends on the raw reading.",
+          "Use one specimen row per cement cube and keep the same specimen ID across all three age readings.",
+          "Leave no age field blank for a specimen if you intend to compare 3-day, 7-day, and 28-day results together.",
+          "Enter numeric load values only, because the page already assumes the displayed unit for each age stage.",
         ]}
       />
       </div>
@@ -292,5 +242,5 @@ const CompStrengthTestPage = ({ testId, onSubmit }) => {
   );
 };
 
-export default CompStrengthTestPage;
+export default CementTestPage;
 
