@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import {
   Printer,
@@ -83,7 +83,7 @@ const Page = ({ children }) => (
 const TileResult = ({ onRestart }) => {
   const location = useLocation();
   const { inputs } = location.state || {};
-  const [status, setStatus] = useState("PASS");
+  const status = "PASS";
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "instant" });
@@ -475,7 +475,7 @@ const TileResult = ({ onRestart }) => {
 
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 bg-white p-2 rounded-2xl shadow-xl border border-slate-200 print:hidden">
           <button
-            onClick={() => (window.location.href = "/")}
+            onClick={onRestart}
             className="flex items-center gap-2 px-5 py-2.5 text-slate-600 font-bold text-sm hover:bg-slate-50 rounded-xl transition-colors"
           >
             <RefreshCw size={16} />

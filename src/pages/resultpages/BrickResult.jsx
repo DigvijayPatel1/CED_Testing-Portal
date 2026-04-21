@@ -191,12 +191,10 @@ const ResultPage = ({ result, onRestart }) => {
 
             <div
               className="overflow-hidden border border-slate-400 rounded-lg print:border-slate-400"
-              style={exactPrintColor}
             >
               <table className="w-full text-[10px] text-left">
                 <thead
                   className="bg-slate-100 text-slate-700 font-bold uppercase text-[9px] tracking-wider border-b border-slate-400 print:bg-slate-100"
-                  style={exactPrintColor}
                 >
                   <tr>
                     <th className="px-2 py-1.5 w-8 text-center border-r border-slate-400">
